@@ -69,7 +69,7 @@ class MiddlewareGDB(object):
     def run_gdb(self, dataset):
 
         proc = subprocess.Popen(
-            'pgrep -l -f "python: middlewared"|grep -v worker',
+            'pgrep -l -f "python3.6: middlewared" | grep -v worker',
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         try:

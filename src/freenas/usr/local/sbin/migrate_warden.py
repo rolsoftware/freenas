@@ -26,7 +26,6 @@
 #####################################################################
 import asyncio
 import datetime
-import functools
 import getopt
 import json
 import os
@@ -38,6 +37,7 @@ import libzfs
 import shutil
 import pathlib
 from middlewared.client import Client, ClientException
+from middlewared.main import async_run_in_executor
 
 
 class Connection(object):
@@ -217,22 +217,20 @@ class Migrate(object):
         self.create_jail(props, iocroot)
 
         await asyncio.gather(
-            asyncio.ensure_future(self.loop.run_in_executor(
+            asyncio.ensure_future(async_run_in_executor(
+                self.loop,
                 self.thread_pool_executor,
-                functools.partial(
-                    self.ZFS.send_dataset,
-                    self.s_pipe,
-                    self.warden_dataset,
-                    self.date
-                )
+                self.ZFS.send_dataset,
+                self.s_pipe,
+                self.warden_dataset,
+                self.date
             )),
-            asyncio.ensure_future(self.loop.run_in_executor(
+            asyncio.ensure_future(async_run_in_executor(
+                self.loop,
                 self.thread_pool_executor,
-                functools.partial(
-                    self.ZFS.recv_dataset,
-                    self.r_pipe,
-                    self.iocage_root
-                )
+                self.ZFS.recv_dataset,
+                self.r_pipe,
+                self.iocage_root
             ))
         )
 
